@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#181825">
+  <title>After Midnight Radio</title>
+  <script>
+  /* ==================== PERSONAL GIFT CONFIG · EDIT HERE ====================
+     1. Change the names, copy, presets and song links below.
+     2. {recipient} and {sender} work in any text. Leave airDate blank to hide it.
+     3. Each station’s transcript is the written note shown when it is selected.
+        Use \n within a quoted message to start a new line.
+     4. Optional coverURL / songAudioURL: paste a data: URL for an embedded
+        picture or song, or an HTTPS URL for hosted media. Leave them blank
+        to use the built-in artwork and the station’s song link.
+     5. Use frequencies from 88 to 108 MHz for the illustrated dial.
+     ====================================================================== */
+  const RADIO_CONFIG = {
+    recipient: "Marco",
+    sender: "your sleepy cat",
+    brand: "Nightshift FM",
+    titleFirstLine: "{recipient} After",
+    titleSecondLine: "Midnight",
+    introduction: "Two songs I picked for you, a few things I wanted to say, and a frequency I was hoping you’d find.",
+    airDate: "", // Example: "November 6, 2026"
+    signOff: "With love, {sender}",
+    stations: [
+      {
+        frequency: 88.3,
+        name: "Soft Signal",
+        guideLine: "For the quiet hours",
+        sleeve: "moon", // Built-in art: moon, highway, or tape
+        coverURL: "",
+        songTitle: "Futile Devices",
+        artist: "Sufjan Stevens",
+        songURL: "https://www.youtube.com/watch?v=RaKXCrogzfk",
+        songAudioURL: "",
+        transcript: "Sooo, I made you a mini radio station. I was thinking about you, had a perfectly good ‘hi’ I could've sent, and apparently I chose to become a local broadcaster. Hi, by the way."
+      },
+      {
+        frequency: 96.7,
+        name: "Dry Wit FM",
+        guideLine: "Delivered deadpan",
+        sleeve: "highway",
+        coverURL: "",
+        songTitle: "The Facts of Life",
+        artist: "Black Box Recorder",
+        songURL: "https://www.youtube.com/watch?v=0d3vhHe-zSM",
+        songAudioURL: "",
+        transcript: "We've received a complaint from a listener who says I picked the wrong song. Mar, you're our only listener. Describing yourself as 'a concerned member of the public' has done very little to protect your identity. You can proceed to the next station, sweetheart."
+      },
+      {
+        frequency: 107.9,
+        name: "Dead Air",
+        guideLine: "Unlisted frequency",
+        sleeve: "tape",
+        coverURL: "",
+        secret: true,
+        revealedName: "Hot Mic",
+        outtakeTitle: "Is this thing still on?",
+        outtakeCredit: "{sender}, off script",
+        transcript: "Wait. Is that light still on? Oh, good. I wish I could leave this folded on your pillow and be there when you read it. Since you're reading it on your phone, picture me beside you, waiting for you to finish, a little shy now that you've seen the whole thing. I wanted you to have something you could open at the end of a long day and know, for certain, that somebody sat down and made a whole thing just because you crossed their mind. You can tell me which song I should've picked tomorrow. For tonight, I wish I could kiss you goodnight. Sleep well ♡. Okay. Now it’s off."
+      }
+    ]
+  };
+  /* ======================== END OF PERSONAL CONFIG ======================== */
+  </script>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #181825;
+  --surface: #222231;
+  --ink: #f6f2ed;
+  --quiet: #bfbbcf;
+  --faint: #a7a3b9;
+  --line: #424052;
+  --lime: #e1eca0;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+  font: 16px/1.5 var(--sans);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { min-width: 0; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image: radial-gradient(ellipse 72% 64% at 80% 12%, #35304366, transparent 77%);
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: .15;
+  background: radial-gradient(#a6a2c2 0.52px, transparent 0.7px) 0 0 / 4px 4px;
+}
+.shell { width: min(1120px, calc(100% - 112px)); margin-inline: auto; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button, input { font: inherit; }
+button, a { touch-action: manipulation; }
+button { cursor: pointer; color: inherit; }
+a { color: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, section[tabindex]:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+.icon-library, .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ico { width: 18px; height: 18px; flex: none; display: block; }
+.skip { position: absolute; left: 18px; top: 8px; transform: translateY(-160%); z-index: 4; padding: 10px 16px; border-radius: 4px; color: var(--bg); background: var(--lime); }
+.skip:focus { transform: translateY(0); }
+.mast { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
+.wordmark { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 650; letter-spacing: -.85px; line-height: 1.25; }
+.brand-glyph { width: 34px; height: 23px; color: var(--lime); flex: none; }
+.mast-status { display: flex; align-items: center; gap: 9px; color: #cdcad8; font: 10px/1.2 var(--mono); letter-spacing: .13em; text-transform: uppercase; white-space: nowrap; }
+.lamp { width: 7px; height: 7px; border-radius: 50%; background: #b4acbf; box-shadow: 0 0 0 3px #c7bbd314; }
+body.song-channel .lamp { background: var(--lime); box-shadow: 0 0 0 3px #dbe89919, 0 0 9px #e1eca071; }
+.hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 12px; padding: 34px 0 38px; }
+.hero-copy { min-width: 0; }
+.eyebrow, .meta-line { font: 10px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .15em; }
+.eyebrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: #c1bdd1; margin-bottom: 18px; }
+.small-rule { height: 1px; width: 27px; background: #cecf9b; }
+#airDate:empty { display: none; }
+#airDate:not(:empty)::before { content: "· "; }
+h1, h2, p { margin: 0; }
+h1 { font: normal 500 clamp(72px, 6.8vw, 105px)/.87 var(--serif); letter-spacing: -.066em; overflow-wrap: anywhere; }
+h1 span, h1 em { display: block; }
+h1 em { color: var(--lime); font-weight: 400; letter-spacing: -.072em; padding: .015em .1em .08em 0; }
+.hero-copy p { max-width: 425px; margin-top: 16px; font-size: 16px; line-height: 1.55; color: var(--quiet); text-wrap: pretty; overflow-wrap: anywhere; }
+.illustration { min-width: 0; position: relative; }
+.radio-drawing { display: block; width: 100%; max-width: 568px; margin: auto; overflow: visible; }
+#radioNeedle, #radioKnob { transition: transform .55s cubic-bezier(.2,.8,.23,1); }
+#radioLamp { transition: fill .2s; }
+body.song-channel #radioLamp { fill: #f4b08d; }
+.console { display: grid; grid-template-columns: minmax(270px,.79fr) minmax(0,1.21fr); gap: 22px; align-items: start; }
+.presets, .receiver { border: 1px solid var(--line); border-radius: 15px; background: #222231; min-width: 0; box-shadow: 0 9px 30px #09091414; }
+.presets { padding: 20px 20px 19px; background: linear-gradient(125deg,#262534,#20202f); }
+.panel-heading { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 15px; }
+.panel-heading h2 { font: 500 25px/1.15 var(--serif); letter-spacing: -.045em; }
+.panel-heading .ico { color: #b6b1c5; width: 20px; }
+.station-list { display: grid; gap: 7px; }
+.station {
+  width: 100%; display: grid; grid-template-columns: 76px minmax(0,1fr) 18px; align-items: center; gap: 13px;
+  min-height: 65px; padding: 8px 14px; text-align: left;
+  border: 1px solid #3e3b4c; border-radius: 8px; background: #232231;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.station:hover { border-color: #777387; background: #2d2b3b; }
+.station:active { transform: translateY(1px); }
+.station[aria-pressed="true"] { background: #353740; border-color: #9fa778; }
+.station-freq { white-space: nowrap; display: flex; align-items: baseline; gap: 4px; font: 16px/1.2 var(--mono); color: #d7d3e1; font-variant-numeric: tabular-nums; letter-spacing: -.07em; }
+.station-freq small { font: 8px/1 var(--mono); color: #bdb9c9; letter-spacing: .03em; }
+.station[aria-pressed="true"] .station-freq, .station[aria-pressed="true"] .station-freq small { color: var(--lime); }
+.station-name { font-size: 15px; font-weight: 600; line-height: 1.3; display: block; overflow-wrap: anywhere; }
+.station-description { display: block; margin-top: 3px; color: #b5b1c4; font-size: 12px; line-height: 1.3; }
+.indicator { justify-self: end; width: 7px; height: 7px; border: 1px solid #777387; border-radius: 50%; }
+.station[aria-pressed="true"] .indicator { background: var(--lime); border-color: var(--lime); box-shadow: 0 0 0 3px #e3eb9c12; }
+.receiver { padding: 23px 25px 12px; background: linear-gradient(120deg,#2b293b,#222231 65%); scroll-margin: 14px; }
+.now { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.sleeve { position: relative; width: 96px; height: 96px; flex: none; overflow: hidden; border-radius: 5px; outline: 1px solid #e3dde442; outline-offset: -1px; box-shadow: 0 3px 12px #0a0a124d; background: #3d3b53; }
+.sleeve svg, .sleeve img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sleeve img { position: absolute; inset: 0; }
+.track-meta { min-width: 0; }
+.meta-line { display: flex; align-items: center; gap: 8px; color: var(--lime); font-size: 10px; letter-spacing: .1em; }
+.meter { display: inline-flex; align-items: end; gap: 2px; height: 10px; }
+.meter i { width: 2px; height: 4px; background: currentColor; transform-origin: bottom; }
+.meter i:nth-child(2) { height: 7px; } .meter i:nth-child(3) { height: 10px; } .meter i:nth-child(4) { height: 6px; }
+.track-meta h2 { font: 500 clamp(27px,3vw,43px)/1.04 var(--serif); letter-spacing: -.055em; margin: 7px 0 5px; overflow-wrap: anywhere; }
+.track-meta p { font-size: 15px; color: var(--quiet); overflow-wrap: anywhere; }
+.dedication { margin: 17px 0 10px; padding: 14px 0 2px; border-top: 1px solid #484452; }
+.dedication h3 { margin: 0 0 9px; font-size: 13px; line-height: 1.4; font-weight: 600; color: #eeebee; }
+.dedication p { margin: 0; padding: 1px 0 2px 14px; border-left: 2px solid #a8ae7b; color: #e7e2ec; font: 17px/1.52 var(--serif); overflow-wrap: anywhere; white-space: pre-line; }
+.song-actions { margin-top: 12px; padding-top: 3px; border-top: 1px solid #484452; }
+.embed-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.text-action, .song-action, .icon-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 0; border: 0; background: transparent; color: var(--quiet); font-size: 13px; line-height: 1.3; font-weight: 520; min-height: 44px; text-decoration: none; }
+.song-action { color: var(--lime); } .text-action:hover,.song-action:hover,.icon-button:hover { color: var(--ink); }
+.text-action .ico,.song-action .ico { width: 16px; height: 16px; } .arrow { width: 14px; height: 14px; }
+.embed-panel { margin: 3px 0 9px; }
+.notice { margin: 6px 0; font-size: 12px; color: var(--quiet); }
+.embed-panel { padding-top: 4px; }
+.embed-toolbar { gap: 8px; } .icon-button { width: 44px; }
+.embed-slot { position: relative; width: 100%; padding-top: 56.25%; border-radius: 7px; overflow: hidden; background: #15131c; }
+.embed-slot iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.embed-slot.audio-slot { padding: 7px 0; background: transparent; overflow: visible; }
+.audio-slot audio { display: block; width: 100%; min-width: 0; }
+.embed-toolbar .icon-button { margin-left: auto; }
+.receiver.retune .now { animation: retune .32s ease-out both; }
+@keyframes retune { from { opacity: .43; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); margin-top: 31px; padding: 17px 0 23px; }
+.footer-sign, .footer-fm { display: flex; gap: 9px; align-items: center; color: #bcb7cc; }
+.footer-sign { font: italic 16px/1.4 var(--serif); overflow-wrap: anywhere; }
+.footer-sign svg { color: var(--lime); width: 13px; height: 13px; }
+.footer-fm { font: 9px/1.25 var(--mono); text-transform: uppercase; letter-spacing: .11em; white-space: nowrap; } .footer-fm .ico { width: 15px; height: 15px; }
+.no-script { padding: 20px; font: 16px var(--sans); }
+@media (min-width: 1450px) { .hero { padding: 49px 0 48px; } }
+@media (max-width: 1020px) {
+  .shell { width: calc(100% - 72px); }
+  .console { grid-template-columns: minmax(258px,.82fr) minmax(0,1.18fr); gap: 16px; }
+  .presets { padding: 18px 15px; } .receiver { padding: 20px 20px 10px; }
+  .station { grid-template-columns: 64px minmax(0,1fr) 9px; gap: 8px; padding-inline: 11px; }
+  .hero { padding: 32px 0 30px; }
+}
+@media (max-width: 740px) {
+  .shell { width: calc(100% - 40px); max-width: 620px; }
+  .mast { min-height: 60px; }
+  .hero { grid-template-columns: 1.06fr .94fr; gap: 0; padding: 30px 0 26px; }
+  h1 { font-size: clamp(53px,8.9vw,70px); }
+  .hero-copy p { font-size: 14px; }
+  .eyebrow { font-size: 8.5px; margin-bottom: 13px; }
+  .console { display: flex; flex-direction: column; gap: 14px; }
+  .presets,.receiver { width: 100%; }
+  .presets { padding: 16px; } .panel-heading { margin-bottom: 12px; } .panel-heading h2 { font-size: 22px; }
+  .station-list { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+  .station { min-height: 60px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; position: relative; gap: 3px; padding: 9px 10px; }
+  .station-description { display: none; } .station-name { font-size: 12px; }
+  .station-freq { font-size: 14px; } .station-freq small { font-size: 7px; }
+  .indicator { position: absolute; top: 11px; right: 8px; width: 5px; height: 5px; }
+  .receiver { padding: 18px 17px 9px; } .track-meta h2 { font-size: 33px; }
+  .sleeve { width: 84px; height: 84px; } .now { gap: 15px; }
+  footer { margin-top: 22px; padding-top: 15px; }
+}
+@media (max-width: 500px) {
+  .shell { width: calc(100% - 34px); }
+  .mast { min-height: 55px; } .wordmark { gap: 7px; font-size: 17px; } .brand-glyph { width: 29px; } .mast-status { font-size: 8px; letter-spacing: .09em; gap: 6px; }
+  .hero { grid-template-columns: minmax(0,1fr) minmax(0,.91fr); grid-template-rows: auto auto; padding: 23px 0 22px; row-gap: 4px; }
+  .hero-copy { display: contents; }
+  .eyebrow { grid-column: 1/-1; grid-row: 1; margin: 0 0 3px; }
+  h1 { align-self: center; grid-column: 1; grid-row: 2; font-size: clamp(43px,11.9vw,60px); line-height: .94; }
+  .illustration { grid-column: 2; grid-row: 2; align-self: center; }
+  .radio-drawing { width: 122%; max-width: none; margin-left: -14%; }
+  .hero-copy p { grid-column: 1/-1; grid-row: 3; max-width: 38ch; margin-top: 6px; }
+  .track-meta h2 { font-size: clamp(26px,7.4vw,34px); }
+}
+@media (max-width: 360px) {
+  .shell { width: calc(100% - 24px); }
+  .station { padding: 9px 6px; } .indicator { display: none; }
+  .station-freq { font-size: 12px; } .station-name { font-size: 11px; }
+  .track-meta p { font-size: 13px; } .sleeve { width: 69px; height: 69px; }
+  .receiver, .presets { padding-left: 12px; padding-right: 12px; } .text-action,.song-action { font-size: 12px; gap: 5px; } .now { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+</style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23181825'/%3E%3Cg fill='none' stroke='%23e2eb9b' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 24h5m3-7v14m6-20v26m6-21v17m6-12v7m4-4h6'/%3E%3C/g%3E%3C/svg%3E">
+</head>
+<body>
+  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-signal" viewBox="0 0 40 26"><path d="M1.5 13h4m4-5v10m5-16v22m5.5-18v14m5-12v10m5-15v20m5-10h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-phones" viewBox="0 0 24 24"><path d="M4.4 13v-1.6a7.6 7.6 0 0 1 15.2 0V13m-15.2 0h2.1c1 0 1.5.6 1.5 1.5v3.7c0 1-.6 1.6-1.6 1.6h-.8c-1.5 0-2.3-1-2.3-2.3v-2.6c0-1 .4-1.9 1.1-1.9Zm15.2 0h-2.1c-1 0-1.5.6-1.5 1.5v3.7c0 1 .6 1.6 1.6 1.6h.8c1.5 0 2.3-1 2.3-2.3v-2.6c0-1-.4-1.9-1.1-1.9Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 18 18 6M8 6h10v10" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tuner" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7h6m4 0h8M3 17h10m4 0h4"/><circle cx="11" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></g></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M6.5 11a6 6 0 0 1 4.8-4.9"/></g></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 1.5c.8 6.3 4.2 9.6 10.5 10.5-6.3.9-9.7 4.3-10.5 10.5C11.1 16.3 7.8 12.9 1.5 12 7.8 11.1 11.1 7.8 12 1.5Z" fill="currentColor"/></symbol>
+  </svg>
+  <a class="skip" href="#listen">Skip to player</a>
+  <div class="shell">
+    <header class="mast">
+      <div class="wordmark"><svg class="brand-glyph" aria-hidden="true"><use href="#i-signal"/></svg><span id="brandName"></span></div>
+      <div class="mast-status"><span class="lamp" aria-hidden="true"></span><span id="receiverStatus">Receiver ready</span></div>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="showTitle">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="small-rule"></span>A broadcast for one<span id="airDate"></span></div>
+          <h1 id="showTitle"><span id="titleFirst"></span><em id="titleSecond"></em></h1>
+          <p id="introduction"></p>
+        </div>
+        <!-- The radio, sleeves and icons are all drawn inside this file. -->
+        <div class="illustration" aria-hidden="true"><svg class="radio-drawing" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 290" focusable="false">
+  <defs>
+    <linearGradient id="shell-front" x2=".8" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#e2dded"/><stop offset=".38" stop-color="#bdbcd3"/><stop offset=".76" stop-color="#acaac3"/><stop offset="1" stop-color="#9695b1"/></linearGradient>
+    <linearGradient id="shell-side" x2="1" y2=".2"><stop stop-color="#85859f"/><stop offset=".47" stop-color="#a0a1bd"/><stop offset="1" stop-color="#666780"/></linearGradient>
+    <linearGradient id="display-glass" x2="0" y2="1"><stop stop-color="#b4bd97"/><stop offset=".52" stop-color="#d1dbab"/><stop offset="1" stop-color="#adba93"/></linearGradient>
+    <linearGradient id="knob-metal" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#f4f1f4"/><stop offset=".2" stop-color="#cdcadb"/><stop offset=".52" stop-color="#aaa8c0"/><stop offset="1" stop-color="#73748f"/></linearGradient>
+    <linearGradient id="blade" x2="0" y2="1"><stop stop-color="#d1d0df"/><stop offset=".48" stop-color="#8d8da7"/><stop offset="1" stop-color="#696b84"/></linearGradient>
+    <radialGradient id="radio-shadow"><stop stop-color="#08080f" stop-opacity=".8"/><stop offset="1" stop-color="#0c0c19" stop-opacity="0"/></radialGradient>
+    <pattern id="grill" width="5.5" height="4.8" patternUnits="userSpaceOnUse"><circle cx="2.75" cy="2.8" r="1.52" fill="#d6d2e0"/><circle cx="2.75" cy="2.1" r="1.48" fill="#515164"/><circle cx="2.65" cy="1.83" r="1" fill="#373847"/></pattern>
+    <pattern id="ridges" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(18)"><path d="M0 0v3.6" stroke="#49495d" stroke-width="1.2"/></pattern>
+    <pattern id="cabinet-grain" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx=".8" cy="1.2" r=".36" fill="#fff" opacity=".48"/><circle cx="3" cy="3" r=".45" fill="#4c4960" opacity=".3"/></pattern>
+    <g id="screw"><circle r="2.6" fill="#e1dde8"/><circle cy="-.35" r="2.25" fill="#78778d"/><path d="m-1.15 .9 2.3-1.8" stroke="#555468" stroke-width=".85"/></g>
+    <g id="dial-knob"><ellipse cx="2.5" cy="4" rx="22" ry="20.5" fill="#5f6076" opacity=".7"/><circle r="22.5" fill="#55556d"/><circle r="20.8" fill="#a1a1b8" stroke="#dedbe6" stroke-width="1.1"/><g fill="none" stroke="#5f6077" stroke-width="1.2"><path d="M18.40 0.00L20.50 0.00M18.05 3.59L20.11 4.00M17.00 7.04L18.94 7.85M15.30 10.22L17.05 11.39M13.01 13.01L14.50 14.50M10.22 15.30L11.39 17.05M7.04 17.00L7.85 18.94M3.59 18.05L4.00 20.11M0.00 18.40L0.00 20.50M-3.59 18.05L-4.00 20.11M-7.04 17.00L-7.85 18.94M-10.22 15.30L-11.39 17.05M-13.01 13.01L-14.50 14.50M-15.30 10.22L-17.05 11.39M-17.00 7.04L-18.94 7.85M-18.05 3.59L-20.11 4.00M-18.40 0.00L-20.50 0.00M-18.05 -3.59L-20.11 -4.00M-17.00 -7.04L-18.94 -7.85M-15.30 -10.22L-17.05 -11.39M-13.01 -13.01L-14.50 -14.50M-10.22 -15.30L-11.39 -17.05M-7.04 -17.00L-7.85 -18.94M-3.59 -18.05L-4.00 -20.11M-0.00 -18.40L-0.00 -20.50M3.59 -18.05L4.00 -20.11M7.04 -17.00L7.85 -18.94M10.22 -15.30L11.39 -17.05M13.01 -13.01L14.50 -14.50M15.30 -10.22L17.05 -11.39M17.00 -7.04L18.94 -7.85M18.05 -3.59L20.11 -4.00"/></g><circle r="17.8" fill="url(#knob-metal)" stroke="#74748d" stroke-width=".8"/><circle r="15.8" fill="none" stroke="#efedf4" opacity=".42" stroke-width=".7"/></g>
+  </defs>
+  <g fill="none" stroke="#9b91bf" opacity=".25" stroke-width=".8">
+    <ellipse cx="289" cy="155" rx="128" ry="84" transform="rotate(-21 289 155)"/>
+    <ellipse cx="289" cy="155" rx="160" ry="106" transform="rotate(-21 289 155)"/>
+    <ellipse cx="289" cy="155" rx="191" ry="125" transform="rotate(-21 289 155)"/>
+    <ellipse cx="289" cy="155" rx="223" ry="145" transform="rotate(-21 289 155)" stroke-dasharray="2.1 5" opacity=".63"/>
+  </g>
+  <g fill="#e3e89f"><path d="M60 88q1.4 8 9 9-7.6 1.5-9 9-1-7.5-9-9 8-1 9-9Z" opacity=".9"/><path d="M469 165q.7 5.5 6 6-5.3 1-6 6-.8-5-6-6 5.2-.5 6-6Z"/></g>
+  <g fill="#b4acc9" opacity=".9"><circle cx="105" cy="59" r="1.2"/><circle cx="38" cy="163" r=".9"/><circle cx="495" cy="115" r="1.1"/><circle cx="446" cy="221" r=".9"/><circle cx="159" cy="254" r="1.2"/><path d="M97 205v6m-3-3h6m338-127v6m-3-3h6" stroke="#b4acc9" stroke-width="1"/></g>
+  <ellipse cx="289" cy="252" rx="175" ry="21" fill="url(#radio-shadow)"/>
+  <g transform="rotate(-7 270 178)">
+    <g fill="none" stroke-linecap="round"><path d="M299 92 472 30" stroke="#373847" stroke-width="6"/><path d="m300 90 99-35" stroke="#e5e1eb" stroke-width="4.7"/><path d="m397 56 78-28" stroke="#c7c8d7" stroke-width="2.6"/><path d="m298 92 100-36" stroke="#8b8ba1" stroke-width="1.2"/><path d="m473 28 3.5-1.2" stroke="#d3cfdf" stroke-width="4.2"/><path d="m393 54 1.4 3" stroke="#696a80" stroke-width="2.5"/></g>
+    <path d="M279 95v-7q0-4 5-5h24q5 0 5 4v6" fill="#73738a" stroke="#57586d" stroke-width="1.5"/>
+    <path d="M156 97V82q0-8 8-8h68q9 0 9 8v7h-7v-6q0-3-3-3h-65q-3 0-3 3v12Z" fill="#838399" stroke="#c1bfd0" stroke-width="1.4"/>
+    <path d="M124 234v12q0 3 4 3h19q3 0 3-3v-12m217-3v13q0 3 3 3h22q3 0 3-3v-14" fill="#4c4c60" stroke="#353545" stroke-width="1.6"/>
+    <path d="M117 91l16-6q3-1 8-1h262q12 0 16 12l3 128q0 11-9 15l-15 6-14-6-264-9Z" fill="url(#shell-side)" stroke="#56566e" stroke-width="2"/>
+    <path d="m122 92 16-6h264q10 0 12 7l-16 6Z" fill="#dad6e3" stroke="#a4a3b9" stroke-width="1.1"/>
+    <path d="m407 112 9-3m-9 7 9-3m-9 7 9-3m-9 7 9-3m-9 7 9-3m-9 7 9-3m-9 7 9-3m-9 7 9-3" stroke="#6e6f86" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="111" y="91" width="294" height="155" rx="12" fill="url(#shell-front)" stroke="#6e6d84" stroke-width="2"/>
+    <rect x="113" y="93" width="290" height="151" rx="10" fill="url(#cabinet-grain)" stroke="#e8e4ee" stroke-width="1" opacity=".75"/>
+    <use href="#screw" x="120" y="101"/><use href="#screw" x="396" y="101"/><use href="#screw" x="120" y="236"/><use href="#screw" x="396" y="236"/>
+    <rect x="126" y="105" width="263" height="47" rx="4.2" fill="#524f62" stroke="#e9e5ee" stroke-width="1.3"/>
+    <rect x="129" y="108" width="257" height="41" rx="2" fill="url(#display-glass)"/>
+    <path d="M130 110h255" stroke="#7b836c" stroke-width="2" opacity=".6"/>
+    <g fill="#3f493a" font-family="monospace"><text id="svgFrequency" x="139" y="132" font-size="18" font-weight="bold" letter-spacing="-1">FM</text><text x="141" y="142" font-size="5.5" letter-spacing="1.1">FM STEREO</text></g>
+    <path d="M191 113v31" stroke="#858e72" stroke-width=".7"/>
+    <path d="M201 133h175" stroke="#4c5542" stroke-width="1"/><path d="M201.0 133v8M204.5 133v4M208.0 133v4M211.5 133v4M215.0 133v4M218.5 133v8M222.0 133v4M225.5 133v4M229.0 133v4M232.5 133v4M236.0 133v8M239.5 133v4M243.0 133v4M246.5 133v4M250.0 133v4M253.5 133v8M257.0 133v4M260.5 133v4M264.0 133v4M267.5 133v4M271.0 133v8M274.5 133v4M278.0 133v4M281.5 133v4M285.0 133v4M288.5 133v8M292.0 133v4M295.5 133v4M299.0 133v4M302.5 133v4M306.0 133v8M309.5 133v4M313.0 133v4M316.5 133v4M320.0 133v4M323.5 133v8M327.0 133v4M330.5 133v4M334.0 133v4M337.5 133v4M341.0 133v8M344.5 133v4M348.0 133v4M351.5 133v4M355.0 133v4M358.5 133v8M362.0 133v4M365.5 133v4M369.0 133v4M372.5 133v4M376.0 133v8" stroke="#505c48" fill="none" stroke-width=".8"/>
+    <g fill="#4a5543" font-family="monospace" font-size="6"><text x="201" y="121">88</text><text x="242" y="121">93</text><text x="285" y="121">98</text><text x="328" y="121">103</text><text x="366" y="121">108</text></g>
+    <g id="radioNeedle"><path d="M0 111v32" stroke="#9f4339" stroke-width="2"/><path d="M-2.5 110h5l-2.5 4Z" fill="#a9473c"/></g>
+    <rect x="126" y="161" width="151" height="64" rx="4" fill="#b2b0c7"/><rect x="126" y="161" width="151" height="64" rx="4" fill="url(#grill)"/>
+    <path d="M131 230h42m43 0h53" stroke="#77778c" stroke-width=".6"/>
+    <text x="194" y="232.5" font-family="sans-serif" font-weight="700" font-size="5.3" fill="#56566b" text-anchor="middle" letter-spacing=".8">STEREO</text>
+    <g transform="translate(311 193)"><use href="#dial-knob"/><path d="m-4-6-4-8" stroke="#55556d" stroke-width="2.2" stroke-linecap="round"/></g>
+    <g transform="translate(365 193)"><use href="#dial-knob"/><g id="radioKnob"><path d="M0-7v-8" stroke="#55556d" stroke-width="2.2" stroke-linecap="round"/></g></g>
+    <g fill="#525268" font-size="5.5" font-family="sans-serif" font-weight="700" text-anchor="middle" letter-spacing=".8"><text x="311" y="226">VOLUME</text><text x="365" y="226">TUNING</text></g>
+    <g transform="translate(288 159)"><circle r="2.7" fill="#65677a"/><circle id="radioLamp" r="1.9" fill="#cf8e76"/><path d="M5 0h13" stroke="#737388" stroke-width=".8"/></g>
+    <path d="m355 88 0-4 22-.2 1.5 3.2" fill="url(#blade)" stroke="#707185" stroke-width=".8"/>
+  </g>
+</svg>
+</div>
+      </section>
+      <div class="console">
+        <section class="presets" aria-labelledby="guideTitle">
+          <div class="panel-heading"><h2 id="guideTitle">Station guide</h2><svg class="ico" aria-hidden="true"><use href="#i-tuner"/></svg></div>
+          <div class="station-list" id="stationList" role="group" aria-label="Station presets"></div>
+        </section>
+        <section class="receiver" id="listen" tabindex="-1" aria-label="Current station player">
+          <div class="now">
+            <div class="sleeve" id="sleeve" aria-hidden="true"><svg class="cover-drawing" viewBox="0 0 120 120" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="night-sky" x2=".55" y2="1"><stop stop-color="#272640"/><stop offset=".66" stop-color="#66648d"/><stop offset="1" stop-color="#aaa4bc"/></linearGradient>
+    <linearGradient id="sunset" x2=".35" y2="1"><stop stop-color="#4c415c"/><stop offset=".64" stop-color="#c37e8b"/><stop offset="1" stop-color="#edbe91"/></linearGradient>
+    <pattern id="printdots" width="3" height="3" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".38" fill="#fff" opacity=".42"/></pattern>
+  </defs>
+  <g id="coverMoon">
+    <path fill="url(#night-sky)" d="M0 0h120v120H0z"/><circle cx="74" cy="32" r="16" fill="#e8e9b3"/>
+    <g fill="#efefdc"><circle cx="15" cy="19" r=".9"/><circle cx="38" cy="12" r=".8"/><circle cx="98" cy="13" r=".8"/><circle cx="51" cy="37" r=".6"/><circle cx="30" cy="28" r=".65"/><path d="m98 38 1.1 3.1 3.2.9-3.2 1-1.1 3.1-1-3.1-3.2-1 3.2-.9Z"/></g>
+    <path d="M-5 65Q12 48 26 59T55 62Q66 58 81 63t41-9v65H-5" fill="#575773"/><path d="M-3 74q25-8 46-4t46-1 34-7v59H-3" fill="#383951"/>
+    <g fill="none" stroke-width=".82" stroke-linecap="round"><path stroke="#ced0c2" d="M-4 70.90 L-2 71.44 L0 72.00 L2 72.56 L4 73.10 L6 73.62 L8 74.11 L10 74.56 L12 74.95 L14 75.28 L16 75.54 L18 75.73 L20 75.85 L22 75.89 L24 75.85 L26 75.73 L28 75.54 L30 75.29 L32 74.97 L34 74.61 L36 74.19 L38 73.74 L40 73.27 L42 72.77 L44 72.28 L46 71.79 L48 71.31 L50 70.87 L52 70.45 L54 70.08 L56 69.75 L58 69.48 L60 69.27 L62 69.11 L64 69.02 L66 68.99 L68 69.02 L70 69.10 L72 69.24 L74 69.42 L76 69.65 L78 69.91 L80 70.19 L82 70.50 L84 70.82 L86 71.14 L88 71.46 L90 71.77 L92 72.07 L94 72.35 L96 72.60 L98 72.82 L100 73.01 L102 73.16 L104 73.29 L106 73.37 L108 73.43 L110 73.46 L112 73.46 L114 73.43 L116 73.39 L118 73.32 L120 73.25 L122 73.17 L124 73.08"/><path stroke="#a7a0be" d="M-4 75.98 L-2 76.52 L0 77.04 L2 77.52 L4 77.97 L6 78.36 L8 78.70 L10 78.98 L12 79.18 L14 79.31 L16 79.37 L18 79.36 L20 79.28 L22 79.12 L24 78.90 L26 78.63 L28 78.30 L30 77.93 L32 77.53 L34 77.10 L36 76.66 L38 76.21 L40 75.77 L42 75.34 L44 74.93 L46 74.56 L48 74.21 L50 73.91 L52 73.66 L54 73.46 L56 73.31 L58 73.21 L60 73.17 L62 73.17 L64 73.22 L66 73.32 L68 73.45 L70 73.62 L72 73.82 L74 74.04 L76 74.27 L78 74.52 L80 74.76 L82 75.00 L84 75.24 L86 75.46 L88 75.67 L90 75.85 L92 76.02 L94 76.16 L96 76.28 L98 76.37 L100 76.44 L102 76.49 L104 76.52 L106 76.54 L108 76.54 L110 76.54 L112 76.53 L114 76.51 L116 76.50 L118 76.49 L120 76.48 L122 76.48 L124 76.49"/><path stroke="#a7a0be" d="M-4 80.89 L-2 81.33 L0 81.71 L2 82.05 L4 82.32 L6 82.53 L8 82.68 L10 82.76 L12 82.77 L14 82.71 L16 82.59 L18 82.41 L20 82.18 L22 81.91 L24 81.59 L26 81.24 L28 80.88 L30 80.49 L32 80.11 L34 79.72 L36 79.35 L38 79.00 L40 78.67 L42 78.37 L44 78.11 L46 77.88 L48 77.70 L50 77.56 L52 77.47 L54 77.41 L56 77.40 L58 77.42 L60 77.48 L62 77.57 L64 77.68 L66 77.82 L68 77.96 L70 78.12 L72 78.29 L74 78.45 L76 78.61 L78 78.76 L80 78.90 L82 79.03 L84 79.15 L86 79.24 L88 79.33 L90 79.40 L92 79.45 L94 79.50 L96 79.54 L98 79.56 L100 79.59 L102 79.62 L104 79.64 L106 79.68 L108 79.72 L110 79.77 L112 79.83 L114 79.90 L116 79.99 L118 80.08 L120 80.19 L122 80.30 L124 80.42"/><path stroke="#7e7a99" d="M-4 85.33 L-2 85.60 L0 85.81 L2 85.95 L4 86.04 L6 86.07 L8 86.04 L10 85.96 L12 85.82 L14 85.64 L16 85.42 L18 85.16 L20 84.88 L22 84.58 L24 84.26 L26 83.95 L28 83.63 L30 83.33 L32 83.04 L34 82.77 L36 82.53 L38 82.31 L40 82.13 L42 81.98 L44 81.86 L46 81.77 L48 81.72 L50 81.69 L52 81.69 L54 81.72 L56 81.76 L58 81.82 L60 81.89 L62 81.97 L64 82.05 L66 82.13 L68 82.21 L70 82.28 L72 82.34 L74 82.40 L76 82.44 L78 82.48 L80 82.51 L82 82.53 L84 82.54 L86 82.55 L88 82.57 L90 82.58 L92 82.60 L94 82.63 L96 82.67 L98 82.73 L100 82.80 L102 82.89 L104 83.00 L106 83.12 L108 83.27 L110 83.43 L112 83.61 L114 83.80 L116 84.00 L118 84.21 L120 84.41 L122 84.61 L124 84.80"/><path stroke="#ced0c2" d="M-4 89.15 L-2 89.25 L0 89.29 L2 89.29 L4 89.23 L6 89.14 L8 89.00 L10 88.84 L12 88.64 L14 88.43 L16 88.20 L18 87.97 L20 87.73 L22 87.49 L24 87.26 L26 87.05 L28 86.85 L30 86.67 L32 86.51 L34 86.38 L36 86.27 L38 86.18 L40 86.11 L42 86.06 L44 86.03 L46 86.01 L48 86.01 L50 86.01 L52 86.02 L54 86.03 L56 86.04 L58 86.04 L60 86.04 L62 86.03 L64 86.02 L66 85.99 L68 85.96 L70 85.92 L72 85.87 L74 85.82 L76 85.78 L78 85.73 L80 85.69 L82 85.66 L84 85.65 L86 85.65 L88 85.68 L90 85.73 L92 85.80 L94 85.90 L96 86.03 L98 86.19 L100 86.38 L102 86.59 L104 86.83 L106 87.09 L108 87.36 L110 87.64 L112 87.92 L114 88.21 L116 88.48 L118 88.74 L120 88.97 L122 89.18 L124 89.35"/><path stroke="#a7a0be" d="M-4 92.45 L-2 92.43 L0 92.37 L2 92.28 L4 92.17 L6 92.05 L8 91.90 L10 91.75 L12 91.59 L14 91.44 L16 91.29 L18 91.14 L20 91.01 L22 90.89 L24 90.78 L26 90.69 L28 90.61 L30 90.55 L32 90.49 L34 90.45 L36 90.42 L38 90.39 L40 90.36 L42 90.34 L44 90.31 L46 90.27 L48 90.22 L50 90.17 L52 90.10 L54 90.02 L56 89.93 L58 89.82 L60 89.71 L62 89.59 L64 89.46 L66 89.33 L68 89.20 L70 89.08 L72 88.98 L74 88.88 L76 88.81 L78 88.76 L80 88.74 L82 88.76 L84 88.80 L86 88.89 L88 89.02 L90 89.18 L92 89.38 L94 89.62 L96 89.89 L98 90.19 L100 90.51 L102 90.86 L104 91.21 L106 91.57 L108 91.92 L110 92.27 L112 92.59 L114 92.89 L116 93.15 L118 93.37 L120 93.54 L122 93.65 L124 93.71"/><path stroke="#7e7a99" d="M-4 95.49 L-2 95.44 L0 95.37 L2 95.30 L4 95.22 L6 95.15 L8 95.08 L10 95.02 L12 94.96 L14 94.91 L16 94.88 L18 94.85 L20 94.83 L22 94.81 L24 94.80 L26 94.79 L28 94.79 L30 94.77 L32 94.75 L34 94.72 L36 94.68 L38 94.62 L40 94.55 L42 94.45 L44 94.34 L46 94.20 L48 94.05 L50 93.88 L52 93.69 L54 93.49 L56 93.28 L58 93.07 L60 92.86 L62 92.66 L64 92.47 L66 92.29 L68 92.14 L70 92.02 L72 91.94 L74 91.89 L76 91.88 L78 91.93 L80 92.02 L82 92.15 L84 92.34 L86 92.57 L88 92.85 L90 93.17 L92 93.52 L94 93.91 L96 94.31 L98 94.73 L100 95.15 L102 95.57 L104 95.98 L106 96.36 L108 96.72 L110 97.03 L112 97.30 L114 97.51 L116 97.66 L118 97.74 L120 97.76 L122 97.70 L124 97.58"/><path stroke="#a7a0be" d="M-4 98.63 L-2 98.63 L0 98.64 L2 98.65 L4 98.68 L6 98.71 L8 98.75 L10 98.80 L12 98.85 L14 98.91 L16 98.96 L18 99.01 L20 99.06 L22 99.09 L24 99.10 L26 99.10 L28 99.07 L30 99.02 L32 98.95 L34 98.84 L36 98.70 L38 98.54 L40 98.34 L42 98.12 L44 97.88 L46 97.62 L48 97.34 L50 97.05 L52 96.76 L54 96.47 L56 96.19 L58 95.93 L60 95.69 L62 95.48 L64 95.31 L66 95.18 L68 95.11 L70 95.08 L72 95.11 L74 95.19 L76 95.34 L78 95.54 L80 95.79 L82 96.10 L84 96.45 L86 96.85 L88 97.28 L90 97.73 L92 98.20 L94 98.68 L96 99.15 L98 99.61 L100 100.05 L102 100.45 L104 100.81 L106 101.12 L108 101.37 L110 101.55 L112 101.67 L114 101.71 L116 101.68 L118 101.57 L120 101.38 L122 101.12 L124 100.80"/><path stroke="#ced0c2" d="M-4 102.16 L-2 102.27 L0 102.40 L2 102.53 L4 102.66 L6 102.80 L8 102.93 L10 103.05 L12 103.17 L14 103.26 L16 103.34 L18 103.39 L20 103.41 L22 103.39 L24 103.34 L26 103.25 L28 103.12 L30 102.96 L32 102.75 L34 102.50 L36 102.23 L38 101.92 L40 101.59 L42 101.24 L44 100.88 L46 100.51 L48 100.15 L50 99.80 L52 99.48 L54 99.18 L56 98.91 L58 98.69 L60 98.52 L62 98.41 L64 98.36 L66 98.37 L68 98.44 L70 98.58 L72 98.79 L74 99.05 L76 99.38 L78 99.76 L80 100.18 L82 100.64 L84 101.13 L86 101.64 L88 102.16 L90 102.67 L92 103.17 L94 103.65 L96 104.09 L98 104.49 L100 104.84 L102 105.12 L104 105.34 L106 105.49 L108 105.55 L110 105.54 L112 105.45 L114 105.29 L116 105.04 L118 104.73 L120 104.36 L122 103.93 L124 103.46"/><path stroke="#7e7a99" d="M-4 106.23 L-2 106.45 L0 106.66 L2 106.87 L4 107.07 L6 107.25 L8 107.40 L10 107.52 L12 107.61 L14 107.66 L16 107.66 L18 107.62 L20 107.52 L22 107.38 L24 107.19 L26 106.95 L28 106.67 L30 106.34 L32 105.98 L34 105.60 L36 105.19 L38 104.76 L40 104.33 L42 103.91 L44 103.50 L46 103.11 L48 102.76 L50 102.44 L52 102.17 L54 101.96 L56 101.81 L58 101.73 L60 101.72 L62 101.78 L64 101.91 L66 102.11 L68 102.38 L70 102.71 L72 103.10 L74 103.54 L76 104.02 L78 104.53 L80 105.06 L82 105.60 L84 106.15 L86 106.68 L88 107.18 L90 107.66 L92 108.08 L94 108.46 L96 108.77 L98 109.02 L100 109.19 L102 109.28 L104 109.30 L106 109.23 L108 109.09 L110 108.87 L112 108.58 L114 108.23 L116 107.82 L118 107.36 L120 106.87 L122 106.35 L124 105.82"/><path stroke="#a7a0be" d="M-4 110.74 L-2 111.01 L0 111.25 L2 111.46 L4 111.63 L6 111.76 L8 111.84 L10 111.86 L12 111.83 L14 111.74 L16 111.59 L18 111.39 L20 111.13 L22 110.82 L24 110.46 L26 110.06 L28 109.62 L30 109.16 L32 108.69 L34 108.21 L36 107.73 L38 107.27 L40 106.83 L42 106.43 L44 106.07 L46 105.76 L48 105.51 L50 105.32 L52 105.21 L54 105.17 L56 105.21 L58 105.32 L60 105.51 L62 105.77 L64 106.10 L66 106.49 L68 106.93 L70 107.42 L72 107.94 L74 108.48 L76 109.03 L78 109.59 L80 110.13 L82 110.66 L84 111.15 L86 111.59 L88 111.99 L90 112.32 L92 112.58 L94 112.78 L96 112.89 L98 112.93 L100 112.89 L102 112.78 L104 112.59 L106 112.33 L108 112.01 L110 111.63 L112 111.21 L114 110.75 L116 110.26 L118 109.76 L120 109.25 L122 108.74 L124 108.25"/><path stroke="#a7a0be" d="M-4 115.42 L-2 115.64 L0 115.81 L2 115.92 L4 115.98 L6 115.96 L8 115.89 L10 115.74 L12 115.53 L14 115.26 L16 114.93 L18 114.55 L20 114.12 L22 113.66 L24 113.16 L26 112.65 L28 112.13 L30 111.61 L32 111.11 L34 110.63 L36 110.19 L38 109.79 L40 109.44 L42 109.16 L44 108.94 L46 108.80 L48 108.74 L50 108.75 L52 108.84 L54 109.02 L56 109.26 L58 109.57 L60 109.95 L62 110.38 L64 110.86 L66 111.37 L68 111.91 L70 112.46 L72 113.01 L74 113.56 L76 114.08 L78 114.58 L80 115.03 L82 115.43 L84 115.77 L86 116.05 L88 116.26 L90 116.39 L92 116.46 L94 116.44 L96 116.35 L98 116.20 L100 115.97 L102 115.69 L104 115.35 L106 114.97 L108 114.55 L110 114.11 L112 113.65 L114 113.19 L116 112.73 L118 112.28 L120 111.85 L122 111.46 L124 111.10"/><path stroke="#ced0c2" d="M-4 119.91 L-2 120.00 L0 120.01 L2 119.94 L4 119.81 L6 119.60 L8 119.33 L10 119.00 L12 118.60 L14 118.16 L16 117.68 L18 117.16 L20 116.63 L22 116.08 L24 115.54 L26 115.01 L28 114.50 L30 114.03 L32 113.60 L34 113.23 L36 112.92 L38 112.68 L40 112.51 L42 112.42 L44 112.41 L46 112.48 L48 112.62 L50 112.84 L52 113.13 L54 113.49 L56 113.90 L58 114.35 L60 114.84 L62 115.36 L64 115.90 L66 116.43 L68 116.96 L70 117.47 L72 117.96 L74 118.40 L76 118.80 L78 119.14 L80 119.42 L82 119.64 L84 119.79 L86 119.87 L88 119.88 L90 119.82 L92 119.70 L94 119.51 L96 119.27 L98 118.98 L100 118.65 L102 118.29 L104 117.90 L106 117.50 L108 117.09 L110 116.68 L112 116.29 L114 115.91 L116 115.56 L118 115.25 L120 114.97 L122 114.73 L124 114.53"/><path stroke="#a7a0be" d="M-4 123.90 L-2 123.78 L0 123.59 L2 123.33 L4 123.00 L6 122.61 L8 122.16 L10 121.67 L12 121.15 L14 120.61 L16 120.05 L18 119.50 L20 118.95 L22 118.43 L24 117.94 L26 117.50 L28 117.11 L30 116.78 L32 116.52 L34 116.33 L36 116.21 L38 116.18 L40 116.22 L42 116.34 L44 116.53 L46 116.79 L48 117.12 L50 117.49 L52 117.92 L54 118.37 L56 118.86 L58 119.36 L60 119.87 L62 120.37 L64 120.85 L66 121.31 L68 121.73 L70 122.11 L72 122.44 L74 122.72 L76 122.94 L78 123.09 L80 123.19 L82 123.22 L84 123.18 L86 123.09 L88 122.95 L90 122.75 L92 122.52 L94 122.24 L96 121.94 L98 121.62 L100 121.28 L102 120.94 L104 120.60 L106 120.27 L108 119.96 L110 119.67 L112 119.40 L114 119.17 L116 118.96 L118 118.80 L120 118.67 L122 118.57 L124 118.52"/></g><path d="M0 0h120v120H0z" fill="url(#printdots)" opacity=".35"/>
+  </g>
+  <g id="coverHighway" style="display:none">
+    <path fill="url(#sunset)" d="M0 0h120v120H0z"/><circle cx="83" cy="35" r="18" fill="#f1dba9"/><path d="M0 58q11-8 23-7t21-3 20 6 22-2 34-5v74H0Z" fill="#8e7180"/><path d="M0 67q34-7 60-6t60-4v63H0Z" fill="#484353"/>
+    <path d="M68 62q-18 6 0 10 23 6-1 13-29 8-22 14t23 21H4q-4-12 26-24t30-13q13-5-2-9t10-12Z" fill="#cca89c"/><path d="M64 65q-7 4 4 7t0 10M57 87q-17 6-20 12m-2 10 10 11" fill="none" stroke="#f1dda7" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <g stroke="#322f3c" fill="none" stroke-linecap="round"><path d="M18 62V31m-7 6 14-2m-12 6 11-2M36 60V43m-5 5 10-2m-9 5 8-2M50 59V49m-3 4 6-1" stroke-width="1.5"/><path d="M0 33q11 7 18 3 10 12 18 11 7 6 14 5" stroke-width=".6"/></g><path d="M0 0h120v120H0z" fill="url(#printdots)" opacity=".36"/>
+  </g>
+  <g id="coverTape" style="display:none">
+    <rect width="120" height="120" fill="#aaa0c3"/><path d="M0 81 120 29v91H0Z" fill="#80758f"/><path d="m0 101 120-48" stroke="#d2c4d3" stroke-width=".8"/><g transform="rotate(-12 60 64)"><rect x="14" y="39" width="96" height="56" rx="5" fill="#584e66"/><rect x="11" y="36" width="96" height="56" rx="4" fill="#37344a" stroke="#ded4dc" stroke-width="1.2"/><rect x="17" y="42" width="84" height="32" rx="2" fill="#dedcb3"/><path d="M20 47h79m-79 3h79" stroke="#8e8994" stroke-width=".9"/><rect x="26" y="54" width="66" height="17" rx="8.5" fill="#807c90"/><circle cx="35" cy="62.5" r="6" fill="#3a3847"/><circle cx="83" cy="62.5" r="6" fill="#3a3847"/><circle cx="35" cy="62.5" r="2.5" fill="#e8dfcf"/><circle cx="83" cy="62.5" r="2.5" fill="#e8dfcf"/><path d="m29 90 5-12h49l6 12" fill="none" stroke="#a59caf"/><circle cx="17" cy="84" r="1.5" fill="#b6a9bd"/><circle cx="100" cy="84" r="1.5" fill="#b6a9bd"/></g><rect width="120" height="120" fill="url(#printdots)" opacity=".5"/>
+  </g>
+</svg>
+<img id="customCover" alt="" hidden></div>
+            <div class="track-meta">
+              <div class="meta-line"><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="tuned"></span></div>
+              <h2 id="trackTitle"></h2>
+              <p id="artist"></p>
+            </div>
+          </div>
+          <section class="dedication" id="dedication" aria-labelledby="noteHeading">
+            <h3 id="noteHeading">Dedication</h3>
+            <p id="noteText"></p>
+          </section>
+          <p id="notice" class="notice" role="status" hidden></p>
+          <div class="song-actions" id="songActions" hidden>
+            <a id="songLink" class="song-action" href="#" rel="noopener noreferrer" target="_blank"><svg class="ico" aria-hidden="true"><use href="#i-disc"/></svg><span id="songLabel">Listen to song</span><svg class="arrow" aria-hidden="true"><use id="songGlyph" href="#i-up"/></svg></a>
+          </div>
+          <section class="embed-panel" id="songPanel" aria-label="Song player" hidden>
+            <div class="embed-toolbar"><a id="externalSong" class="text-action" target="_blank" rel="noopener noreferrer">Open on YouTube <svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></a><button id="closeSong" type="button" class="icon-button" aria-label="Close song player"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+            <div id="embedSlot" class="embed-slot"></div>
+          </section>
+        </section>
+      </div>
+    </main>
+    <footer><div class="footer-sign"><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span id="signOff"></span></div><div class="footer-fm"><svg class="ico" aria-hidden="true"><use href="#i-phones"/></svg> Haku FM</div></footer>
+  </div>
+  <div class="sr-only" id="announcement" aria-live="polite" aria-atomic="true"></div>
+  <noscript><p class="no-script">Enable JavaScript to tune the radio and read the dedications.</p></noscript>
+
+  <script>
+/* The personal copy and optional media links are in RADIO_CONFIG at the top. */
+(() => {
+  "use strict";
+  const config = RADIO_CONFIG;
+  const byId = (id) => document.getElementById(id);
+  const ui = Object.fromEntries([
+    "stationList", "listen", "sleeve", "customCover", "tuned", "trackTitle", "artist",
+    "dedication", "noteText", "noteHeading", "songActions", "notice", "receiverStatus",
+    "songLink", "songLabel", "songGlyph", "songPanel", "embedSlot", "externalSong",
+    "closeSong", "radioNeedle", "radioKnob", "svgFrequency", "announcement"
+  ].map((id) => [id, byId(id)]));
+  const stations = config.stations;
+  let current = -1;
+  let embedId = "";
+  let streamURL = "";
+  let songAudioURL = "";
+  let songAudio = null;
+  let pendingCover = null;
+  const discovered = new Set();
+
+  function fill(value) {
+    return String(value == null ? "" : value).replace(/\{(recipient|sender)\}/g, (_, key) => String(config[key] || ""));
+  }
+  function frequency(station) { return Number(station.frequency).toFixed(1); }
+  function safeURL(raw, mediaType) {
+    const value = String(raw || "").trim();
+    if (!value) return "";
+    if (mediaType && value.toLowerCase().startsWith("data:" + mediaType + "/")) return value;
+    try {
+      const url = new URL(value, document.baseURI);
+      if (url.protocol === "https:" || url.protocol === "http:") return url.href;
+      if (mediaType && url.protocol === "file:" && location.protocol === "file:") return url.href;
+    } catch (_) { /* A missing optional asset leaves its built-in alternative. */ }
+    return "";
+  }
+  function youtubeId(url) {
+    if (!url) return "";
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^(www\.|m\.|music\.)/, "");
+    let id = "";
+    if (host === "youtu.be") id = parsed.pathname.slice(1);
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
+      id = parsed.searchParams.get("v") || parsed.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1] || "";
+    }
+    return /^[\w-]{11}$/.test(id) ? id : "";
+  }
+  function showNotice(message = "") {
+    ui.notice.textContent = message;
+    ui.notice.hidden = !message;
+  }
+  function showSongPanel(open) {
+    ui.songPanel.hidden = !open;
+    if (embedId || songAudioURL) ui.songLink.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("song-channel", open);
+    ui.receiverStatus.textContent = open ? "Song channel" : "Receiver ready";
+  }
+  function closeStream() {
+    if (songAudio) {
+      songAudio.onerror = null;
+      songAudio.pause();
+      songAudio.removeAttribute("src");
+      songAudio.load();
+      songAudio = null;
+    }
+    ui.embedSlot.classList.remove("audio-slot");
+    ui.embedSlot.replaceChildren();
+    showSongPanel(false);
+  }
+  function openSong(event) {
+    if (!streamURL && !songAudioURL) { event.preventDefault(); return; }
+    if (!ui.songPanel.hidden && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+      event.preventDefault(); closeStream(); return;
+    }
+    if (navigator.onLine === false && !/^(?:data:|file:)/i.test(songAudioURL)) {
+      event.preventDefault(); showNotice("Connect to the internet to stream this song."); return;
+    }
+    showNotice();
+    // Local files have no web referrer. Use the official watch link directly.
+    if ((!embedId && !songAudioURL) || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    showSongPanel(true);
+    if (songAudioURL) {
+      const player = document.createElement("audio");
+      songAudio = player;
+      player.controls = true;
+      player.setAttribute("aria-label", fill(stations[current].songTitle));
+      player.onerror = () => {
+        if (songAudio === player) showNotice(streamURL ? "The song file couldn’t load. Use the song link in the player below." : "The song file couldn’t load. The dedication is still available.");
+      };
+      ui.embedSlot.classList.add("audio-slot");
+      ui.embedSlot.replaceChildren(player);
+      player.src = songAudioURL;
+      player.play().catch(() => { /* Native controls remain available for manual playback. */ });
+      return;
+    }
+    const frame = document.createElement("iframe");
+    frame.title = fill(stations[current].songTitle) + " — official YouTube player";
+    frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.src = "https://www.youtube-nocookie.com/embed/" + embedId + "?autoplay=1&playsinline=1";
+    ui.embedSlot.replaceChildren(frame);
+  }
+  function updateCover(station) {
+    const types = {moon:"coverMoon", highway:"coverHighway", tape:"coverTape"};
+    const selected = types[station.sleeve] || types.moon;
+    for (const name of Object.values(types)) byId(name).style.display = name === selected ? "" : "none";
+    ui.customCover.hidden = true; ui.customCover.removeAttribute("src");
+    if (pendingCover) { pendingCover.onload = pendingCover.onerror = null; pendingCover = null; }
+    const src = safeURL(station.coverURL, "image");
+    if (!src) return;
+    const candidate = new Image(); pendingCover = candidate;
+    candidate.onload = () => {
+      if (pendingCover !== candidate) return;
+      ui.customCover.src = candidate.src; ui.customCover.hidden = false;
+      pendingCover = null;
+    };
+    candidate.onerror = () => { if (pendingCover === candidate) pendingCover = null; };
+    candidate.src = src;
+  }
+  function guideName(station, index) {
+    return fill(station.secret && discovered.has(index) ? station.revealedName || station.name : station.name);
+  }
+  function addPresets() {
+    stations.forEach((station, index) => {
+      const button = document.createElement("button");
+      button.type = "button"; button.className = "station"; button.setAttribute("aria-controls", "listen");
+      const freq = document.createElement("span"); freq.className = "station-freq"; freq.append(frequency(station));
+      const fm = document.createElement("small"); fm.textContent = "FM"; freq.append(fm);
+      const titles = document.createElement("span");
+      const title = document.createElement("span"); title.className = "station-name";
+      const sub = document.createElement("span"); sub.className = "station-description"; sub.textContent = fill(station.guideLine);
+      titles.append(title, sub);
+      const indicator = document.createElement("span"); indicator.className = "indicator"; indicator.setAttribute("aria-hidden", "true");
+      button.append(freq, titles, indicator);
+      button.addEventListener("click", () => tune(index));
+      ui.stationList.append(button);
+    });
+  }
+  function tune(index) {
+    if (index === current) return;
+    const first = current < 0;
+    const station = stations[index];
+    closeStream();
+    current = index;
+    if (station.secret) discovered.add(index);
+    Array.from(ui.stationList.children).forEach((button, i) => {
+      button.setAttribute("aria-pressed", String(i === index));
+      button.querySelector(".station-name").textContent = guideName(stations[i], i);
+    });
+    const freq = frequency(station);
+    ui.tuned.textContent = freq + " FM" + (station.secret ? " · Off the record" : " · Tuned in");
+    ui.svgFrequency.textContent = freq;
+    const ratio = Math.max(0, Math.min(1, (Number(station.frequency) - 88) / 20));
+    ui.radioNeedle.style.transform = "translateX(" + (201 + 175 * ratio) + "px)";
+    ui.radioKnob.style.transform = "rotate(" + (-80 + ratio * 160) + "deg)";
+    ui.trackTitle.textContent = fill(station.secret ? station.outtakeTitle : station.songTitle);
+    ui.artist.textContent = fill(station.secret ? station.outtakeCredit : station.artist);
+    ui.noteHeading.textContent = station.secret ? "Off-script note" : "Dedication";
+    ui.noteText.textContent = fill(station.transcript);
+    ui.dedication.hidden = !ui.noteText.textContent.trim();
+    showNotice();
+    updateCover(station);
+    streamURL = station.secret ? "" : safeURL(station.songURL);
+    songAudioURL = station.secret ? "" : safeURL(station.songAudioURL, "audio");
+    embedId = /^https?:$/.test(location.protocol) && location.origin !== "null" ? youtubeId(streamURL) : "";
+    ui.songActions.hidden = !streamURL && !songAudioURL;
+    ui.externalSong.hidden = !streamURL;
+    if (streamURL) {
+      ui.externalSong.href = streamURL;
+      ui.externalSong.firstChild.textContent = youtubeId(streamURL) ? "Open on YouTube " : "Open song link ";
+    } else ui.externalSong.removeAttribute("href");
+    if (streamURL || songAudioURL) {
+      ui.songLink.href = streamURL || songAudioURL;
+      ui.songLabel.textContent = embedId || songAudioURL ? "Listen to song" : youtubeId(streamURL) ? "Listen on YouTube" : "Open song";
+      ui.songGlyph.setAttribute("href", embedId || songAudioURL ? "#i-down" : "#i-up");
+    } else ui.songLink.removeAttribute("href");
+    if (embedId || songAudioURL) {
+      ui.songLink.setAttribute("aria-controls", "songPanel");
+      ui.songLink.setAttribute("aria-expanded", "false");
+    } else { ui.songLink.removeAttribute("aria-controls"); ui.songLink.removeAttribute("aria-expanded"); }
+    if (!first) {
+      ui.announcement.textContent = "Tuned to " + freq + " FM, " + guideName(station, index) + ". " + ui.trackTitle.textContent;
+      ui.listen.classList.remove("retune"); void ui.listen.offsetWidth; ui.listen.classList.add("retune");
+    }
+  }
+  byId("brandName").textContent = fill(config.brand);
+  byId("titleFirst").textContent = fill(config.titleFirstLine);
+  byId("titleSecond").textContent = fill(config.titleSecondLine);
+  byId("introduction").textContent = fill(config.introduction);
+  byId("airDate").textContent = fill(config.airDate);
+  byId("signOff").textContent = fill(config.signOff);
+  document.title = [fill(config.titleFirstLine), fill(config.titleSecondLine)].join(" ") + " · " + fill(config.brand);
+  ui.songLink.addEventListener("click", openSong);
+  ui.closeSong.addEventListener("click", () => { closeStream(); ui.songLink.focus(); });
+  window.addEventListener("pagehide", closeStream);
+  addPresets();
+  if (stations.length) tune(0);
+})();
+
+  </script>
+  <!-- Host and share
+       1. Save this file as index.html inside a folder and open it to test.
+       2. In Cloudflare Pages, choose Direct Upload, drop in the folder, and deploy.
+       3. Send the pages.dev link, or use Chrome's Share > QR Code on the live page.
+  -->
+</body>
+</html>
